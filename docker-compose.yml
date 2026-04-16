@@ -1,0 +1,24 @@
+services:
+  postgres:
+      image: mcr.microsoft.com/mssql/server:2022-latest
+      container_name: postgres-db
+      ports: 
+        - "1434:1433"
+      environment:
+        ACCEPT_EULA: "Y"
+        MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+        MSSQL_PID: ${MSSQL_PID:-Developer}
+      volumes:
+        - mssql-data:/var/opt/mssql
+        - ./database:/var/opt/sqlserver/backup
+      networks:
+        - multiple_pipelines_network
+      restart: always
+      healthcheck:
+        test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${MSSQL_SA_PASSWORD}", "-Q", "SELECT 1"]
+        interval: 5s
+        timeout: 5s
+        retries: 10
+
+volumes:
+  mssql-data:
