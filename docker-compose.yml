@@ -1,7 +1,7 @@
 services:
-  postgres:
+  mssql-db:
       image: mcr.microsoft.com/mssql/server:2022-latest
-      container_name: postgres-db
+      container_name: mssql-db
       ports: 
         - "1434:1433"
       environment:
@@ -11,14 +11,17 @@ services:
       volumes:
         - mssql-data:/var/opt/mssql
         - ./database:/var/opt/sqlserver/backup
-      networks:
-        - multiple_pipelines_network
       restart: always
-      healthcheck:
-        test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${MSSQL_SA_PASSWORD}", "-Q", "SELECT 1"]
-        interval: 5s
-        timeout: 5s
-        retries: 10
+
+  mssql-init:
+      image: mcr.microsoft.com/mssql-tools
+      depends_on:
+        - mssql-db
+      environment:
+        MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+      volumes:
+        - ./database/init.sql:/scripts/init.sql:ro
+      command: /bin/bash -c 'until /opt/mssql-tools/bin/sqlcmd -S mssql-db -U sa -P "${MSSQL_SA_PASSWORD}" -i /scripts/init.sql; do echo "Waiting for SQL Server..."; sleep 5; done; echo "Database initialization completed."'
 
 volumes:
   mssql-data:

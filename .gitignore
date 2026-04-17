@@ -1,0 +1,15 @@
+.env
+*__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.log
+*.bak
+*.tmp
+*.swp
+*.swo
+*.DS_Store
+
+# Ignore virtual environment directories
+.venv/

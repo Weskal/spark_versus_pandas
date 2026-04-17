@@ -1,0 +1,8 @@
+apache-airflow
+pandas
+pyspark
+psycopg2-binary
+pyodbc
+sqlalchemy
+boto3
+python-dotenv
